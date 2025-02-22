@@ -1,7 +1,12 @@
 {
 	"name": "deliberate/php-debug-console-logger",
 	"description": "A PHP debug console logger.",
-	"type": "library",
+	"type": "wordpress-plugin",
 	"license": "GPL2",
+	"autoload": {
+		"psr-4": {
+		  "Deliberate\\PhpDebugConsoleLogger\\": "src/"
+		}
+	},
 	"require": {}
-  }
+}
