@@ -1,0 +1,7 @@
+{
+	"name": "deliberate/php-debug-console-logger",
+	"description": "A PHP debug console logger.",
+	"type": "library",
+	"license": "GPL2",
+	"require": {}
+  }
