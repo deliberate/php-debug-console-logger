@@ -3,7 +3,7 @@
  * Plugin Name: PHP Debug Console Logger
  * Plugin URI: https://github.com/deliberate/php-debug-console-logger
  * Description: Sends data from PHP code to the browser's console
- * Version: 0.1.1
+ * Version: 0.1.2
  * Author: Michael Bailey
  * Author URI: https://github.com/deliberate
  * License: GPL2
@@ -31,31 +31,29 @@ register_activation_hook( __FILE__, 'pdcl_activate' );
  *
  * @return void
  */
-function maybe_console_log( $name, $data ) {
+function maybe_console_log( $name = '', $data = null ) {
 
 	// Ensure plugin is enabled
 	if ( '1' !== get_option( 'pdcl_enabled' ) ) {
 		return;
 	}
 
-	// Ensure the php_debug_console_logger query parameter is present.
-	if ( ! isset( $_GET['php_debug_console_logger'] ) ) {
-		return;
-	}
-
-	// Maybe JSON encode data
+	// Maybe JSON encode data, but keep null values as null.
 	if ( is_array( $data ) || is_object( $data ) ) {
 		$data = wp_json_encode( $data, JSON_PRETTY_PRINT );
-	} else {
-		$data = json_encode( (string) $data );
+	} elseif ( ! is_null( $data ) ) {
+		$data = json_encode( $data );
 	}
 
-	// Sanitize the label and define console log styling.
+	// Sanitize the label
 	$sanitized_name = esc_attr( $name );
-	$log_style      = "color: white; background: #0073aa; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
-	
+
+	// Define console log styling, changing background color if data is null.
+	$log_style = "color: white; background: " . ( is_null( $data ) ? '#808080' : '#0073aa' ) . "; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
+	$prequel_style = "color: white; background: red; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
+
 	// Output JS to log the data to the console.
-	echo "<script data-php-console-log='{$sanitized_name}'>console.log('%c{$name}:', '{$log_style}', " . $data . ");</script>";
+	echo "<script data-php-console-log='{$sanitized_name}'>console.log('%cphp debug%c → %c{$name}:', '{$prequel_style}', '', '{$log_style}', " . $data . ");</script>";
 }
 
 /**
