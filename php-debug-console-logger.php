@@ -26,6 +26,8 @@ register_activation_hook( __FILE__, 'pdcl_activate' );
 /**
  * Debug logger that sends PHP data to browser's console.log.
  *
+ * Extracts protected properties from objects, including WC_Product.
+ *
  * @param string $name Label for the log entry.
  * @param mixed  $data Data to log.
  *
@@ -38,23 +40,54 @@ function maybe_console_log( $name = '', $data = null ) {
 		return;
 	}
 
-	// Maybe JSON encode data, but keep null values as null.
+	/**
+	 * Recursively extract public & protected properties from objects.
+	 *
+	 * @param mixed $input The object or data to process.
+	 * @return mixed Processed array or original input.
+	 */
+	$extract_object_data = function( $input ) use ( &$extract_object_data ) {
+		if ( is_object( $input ) ) {
+			// Get public properties first.
+			$object_data = get_object_vars( $input );
+
+			// Get protected/private properties.
+			$reflection = new ReflectionClass( $input );
+			foreach ( $reflection->getProperties() as $property ) {
+				$property->setAccessible( true ); // Allow access to protected/private properties
+				$object_data[ $property->getName() ] = $property->getValue( $input );
+			}
+
+			// Recursively process nested objects/arrays.
+			return array_map( $extract_object_data, $object_data );
+		} elseif ( is_array( $input ) ) {
+			return array_map( $extract_object_data, $input );
+		}
+
+		return $input;
+	};
+
+	// Convert objects to an associative array format before logging.
+	$data = $extract_object_data( $data );
+
+	// Encode data properly.
 	if ( is_array( $data ) || is_object( $data ) ) {
 		$data = wp_json_encode( $data, JSON_PRETTY_PRINT );
 	} elseif ( ! is_null( $data ) ) {
 		$data = json_encode( $data );
 	}
 
-	// Sanitize the label
+	// Sanitize the label.
 	$sanitized_name = esc_attr( $name );
 
-	// Define console log styling, changing background color if data is null.
-	$log_style = "color: white; background: " . ( is_null( $data ) ? '#808080' : '#0073aa' ) . "; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
+	// Define console log styling.
+	$log_style     = "color: white; background: " . ( is_null( $data ) ? '#808080' : '#0073aa' ) . "; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
 	$prequel_style = "color: white; background: red; padding: 2px 4px; border-radius: 4px; font-weight: bold;";
 
 	// Output JS to log the data to the console.
 	echo "<script data-php-console-log='{$sanitized_name}'>console.log('%cphp debug%c → %c{$name}:', '{$prequel_style}', '', '{$log_style}', " . $data . ");</script>";
 }
+
 
 /**
  * Register plugin settings.
