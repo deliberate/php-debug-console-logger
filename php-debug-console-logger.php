@@ -3,7 +3,7 @@
  * Plugin Name: PHP Debug Console Logger
  * Plugin URI: https://github.com/deliberate/php-debug-console-logger
  * Description: Sends data from PHP code to the browser's console
- * Version: 0.1.2
+ * Version: 0.1.5
  * Author: Michael Bailey
  * Author URI: https://github.com/deliberate
  * License: GPL2
