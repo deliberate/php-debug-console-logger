@@ -11,6 +11,8 @@
 
 namespace Deliberate\PhpDebugConsoleLogger;
 
+require_once __DIR__ . '/helpers.php';
+
 use DateTimeInterface;
 use Closure;
 
