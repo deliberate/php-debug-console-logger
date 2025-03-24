@@ -1,7 +1,7 @@
 {
 	"name": "deliberate/php-debug-console-logger",
 	"description": "A PHP debug console logger.",
-	"type": "wordpress-plugin",
+	"type": "wordpress-muplugin",
 	"license": "GPL2",
 	"autoload": {
 		"psr-4": {
